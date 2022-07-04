@@ -9,21 +9,12 @@ const upload = multer({ limits: { fieldSize: 50000000 } });
 
 const fs = require("fs");
 
-// const storage = multer.diskStorage({
-//   destination: function (req, file, cb) {
-//     cb(null, "/tmp/my-uploads");
-//   },
-//   filename: function (req, file, cb) {
-//     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-//     cb(null, file.fieldname + "-" + uniqueSuffix);
-//   },
-// });
-
-router.post("write", upload.single("file"), async (req, res) => {
+router.post("/storage/write", upload.single("file"), async (req, res) => {
   try {
     const folder = req.body.folder;
     const today = new Date().toISOString().split("T")[0];
     const folderPath = path.join(STORAGE_BASE_FOLDER, folder, today);
+    if (!fs.existsSync(folderPath)) fs.mkdirSync(folderPath, { recursive: true });
 
     const originalName = req.file.originalname;
     const fileName = Date.now() + "__" + originalName;
@@ -39,8 +30,9 @@ router.post("write", upload.single("file"), async (req, res) => {
   }
 });
 
-router.get("read", async (req, res) => {
+router.get("/storage/read", async (req, res) => {
   try {
+    console.log(req.query)
     res.contentType("application/pdf");
     return res.send(fs.readFileSync(req.query.filePath));
   } catch (error) {
