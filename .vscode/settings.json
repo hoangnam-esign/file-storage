@@ -1,0 +1,16 @@
+{
+  "cSpell.words": [
+    "Displayer"
+  ],
+  "files.exclude": {
+    "node_modules": false,
+    ".gitignore": false,
+    ".dockerignore": false,
+    "Dockerfile": false,
+    ".prettierrc": false,
+    "README.md": false,
+    ".idea": false,
+    "package*.json": false,
+    ".eslintrc.json": false,
+  }
+}
