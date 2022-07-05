@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const path = require("path");
-const STORAGE_BASE_FOLDER = path.join(__dirname, "storage");
+const STORAGE_BASE_FOLDER = path.join(process.env.BASE_FOLDER_PATH, "storage");
 
 const multer = require("multer");
 const upload = multer({ limits: { fieldSize: 50000000 } });
