@@ -22,7 +22,6 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-
 debug.log
 # :hatching_chick: init commit
 # :sparkles: new: handle request page
@@ -44,4 +43,4 @@ debug.log
 #/single-signed-docs/
 #/single-visible-signed-docs/
 #/midterm-grades
-/file-storage/
+/routes/storage/

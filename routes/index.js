@@ -32,7 +32,6 @@ router.post("/storage/write", upload.single("file"), async (req, res) => {
 
 router.get("/storage/read", async (req, res) => {
   try {
-    console.log(req.query)
     res.contentType("application/pdf");
     return res.send(fs.readFileSync(req.query.filePath));
   } catch (error) {
