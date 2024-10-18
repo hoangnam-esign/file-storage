@@ -6,6 +6,7 @@ const { MB } = require("./constant");
 const { logConfig } = require("./qa/logging");
 const { createLogMiddleware, getErrorHandlerMiddleware } = require("@hoangnam.io/qa-tools");
 const { notifier } = require("./qa/notifying");
+const { init } = require("./init");
 
 const limit = appEnv.REQUEST_SIZE_LIMIT_IN_MB * MB;
 
@@ -17,11 +18,11 @@ app.use(cors());
 
 app.use(createLogMiddleware(app, logConfig));
 
-app.use("/api", require("./routes/storage"));
-
-app.use();
+app.use("/api", require("./routes/index"));
 
 const errorHandler = getErrorHandlerMiddleware(notifier, (req) => req.caller, appEnv.APP_NAME);
 app.use(errorHandler);
+
+init();
 
 app.listen(appEnv.PORT, () => console.log(`App listening on port ${appEnv.PORT}!`));

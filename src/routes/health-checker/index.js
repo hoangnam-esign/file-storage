@@ -6,7 +6,7 @@ const router = express.Router();
 router.get(
   "/health-check",
   handlerWrapper(async (req, res) => {
-    const coll = (await connection).db().collection(Collections.Accounts);
+    const coll = (await connection).db().collection(Collections.Principals);
     await coll.findOne({});
     return res.sendStatus(200);
   })

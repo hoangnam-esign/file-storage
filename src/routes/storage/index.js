@@ -26,6 +26,8 @@ router.post(
     if (!fileBuffer) throw new InputDataInvalid({ message: "file là bắt buộc!" });
 
     const fileName = req.file.originalname;
+    // TODO: fix postman filename problem...
+    console.log("🚧 --> handlerWrapper --> fileName:", req.file);
     // check if file existed --> error
     const filePath = path.join(appEnv.BASE_FOLDER_PATH, folder, fileName);
     if (fs.existsSync(filePath)) {

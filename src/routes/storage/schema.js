@@ -10,7 +10,7 @@ const downloadFileSchema = z.object({
 
 const signReadUrlSchema = z.object({
   fileDest: z.string(),
-  expireIn: z.string().nullable(),
+  expireIn: z.string().nullable().default(null),
 });
 
 const readFileBySignedUrlSchema = z.object({

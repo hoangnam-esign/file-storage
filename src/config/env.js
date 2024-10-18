@@ -9,7 +9,7 @@ const appEnvSchema = z.object({
   REQUEST_SIZE_LIMIT_IN_MB: z.coerce.number().int().default(100),
   DISCORD_NOTIFY_URL: z.string().default(""),
   LOG_DB_CONNECTION_STRING: z.string().nullable().default(null),
-  BASE_FOLDER_PATH: z.string().default("../storage"),
+  BASE_FOLDER_PATH: z.string().default("./storage"),
   ACCESS_TOKEN_EXPIRE_TIME: z.string().or(z.number()).default("1d"),
   SIGNED_URL_EXPIRE_IN: z.string().or(z.number()).default("30m"),
   MONGODB_CONNECT_STRING: z.string(),

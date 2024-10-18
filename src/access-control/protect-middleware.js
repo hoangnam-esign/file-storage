@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const { Roles } = require("./role");
+const { appEnv } = require("../config/env");
 
 function authen(req, res, next) {
   if (!req.headers["authorization"]) {
@@ -12,7 +13,7 @@ function authen(req, res, next) {
   }
 
   try {
-    const verified = jwt.verify(token, process.env.JWT_TOKEN_SECRET);
+    const verified = jwt.verify(token, appEnv.JWT_SECRET);
     req.caller = verified;
     next();
   } catch (err) {
