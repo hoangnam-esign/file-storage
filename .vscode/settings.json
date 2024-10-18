@@ -11,6 +11,6 @@
     "README.md": false,
     ".idea": false,
     "package*.json": false,
-    ".eslintrc.json": false,
+    ".eslintrc.json": false
   }
 }
