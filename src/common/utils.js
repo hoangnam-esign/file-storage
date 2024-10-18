@@ -1,13 +1,9 @@
 const fs = require("fs");
 const path = require("path");
 
-function validate(data, schema) {
-  const { error } = schema.validate(data, { abortEarly: false });
-  if (!error) return null;
-  const errors = {};
-  for (let err of error.details) errors[err.context.key] = err.message;
-  return errors;
-}
+const handlerWrapper = (handler) => async (req, res, next) => {
+  Promise.resolve(handler(req, res, next)).catch(next);
+};
 
 function genDateTimeString() {
   const d = new Date();
@@ -27,4 +23,4 @@ async function sleeper(ms) {
   return new Promise((resolve) => setTimeout(() => resolve(), ms));
 }
 
-module.exports = { validate, genDateTimeString, saveFile, sleeper };
+module.exports = { genDateTimeString, saveFile, sleeper, handlerWrapper };

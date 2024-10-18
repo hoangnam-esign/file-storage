@@ -1,16 +1,24 @@
+require("dotenv").config();
 const express = require("express");
+const cors = require("cors");
+const { appEnv } = require("./config/env");
+const { MB } = require("./constant");
+const { logConfig } = require("./qa/logging");
+const { createLogMiddleware, getErrorHandlerMiddleware } = require("@hoangnam.io/qa-tools");
+const { notifier } = require("./qa/notifying");
+const limit = appEnv.REQUEST_SIZE_LIMIT_IN_MB * MB;
+
 const app = express();
 
-require("dotenv").config();
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-
-const cors = require("cors");
+app.use(express.json({ limit }));
+app.use(express.urlencoded({ limit, extended: false }));
 app.use(cors());
 
-const PORT = process.env.PORT;
+app.use(createLogMiddleware(app, logConfig));
 
 app.use("/api", require("./routes"));
 
-app.listen(PORT, () => console.log(`App listening on port ${PORT}!`));
+const errorHandler = getErrorHandlerMiddleware(notifier, (req) => req.caller, appEnv.APP_NAME);
+app.use(errorHandler);
+
+app.listen(appEnv.PORT, () => console.log(`App listening on port ${appEnv.PORT}!`));

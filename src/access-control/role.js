@@ -1,7 +1,11 @@
+const { z } = require("zod");
+
 const Roles = {
   ADMIN: "ADMIN",
   READER: "READER",
   WRITER: "WRITER",
 };
 
-module.exports = { Roles };
+const RoleEnum = z.nativeEnum(Roles);
+
+module.exports = { Roles, RoleEnum };
