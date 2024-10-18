@@ -11,3 +11,5 @@ router.get(
     return res.sendStatus(200);
   })
 );
+
+module.exports = router;
