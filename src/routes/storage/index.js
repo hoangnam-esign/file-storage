@@ -7,7 +7,7 @@ const jwt = require("jsonwebtoken");
 const { appEnv } = require("../../config/env");
 const { MB } = require("../../constant");
 const { handlerWrapper } = require("../../common/utils");
-const { uploadFileSchema, downloadFileSchema, signReadUrlSchema, readFileBySignedUrlSchema } = require("./schema");
+const { uploadFileSchema, downloadFileSchema, signReadUrlSchema, readFileBySignedUrlSchema, deleteFileSchema } = require("./schema");
 const { InputDataInvalid } = require("../../qa/errors");
 const { authen, author } = require("../../access-control/protect-middleware");
 const { Roles } = require("../../access-control/role");
@@ -90,5 +90,22 @@ router.get(
     return res.download(filePath);
   })
 );
+
+router.delete(
+  "/delete-file",
+  authen,
+  author([]),
+  handlerWrapper(async (req, res) => {
+    const { encodedFileDest } = deleteFileSchema.parse(req.query);
+    const fileDest = decodeURIComponent(encodedFileDest);
+    const filePath = path.join(appEnv.BASE_FOLDER_PATH, fileDest);
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ message: "File không tồn tại!" });
+    }
+    fs.rmSync(filePath);
+    return res.sendStatus(204);
+  })
+);
+
 
 module.exports = router;

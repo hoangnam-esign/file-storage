@@ -17,4 +17,9 @@ const readFileBySignedUrlSchema = z.object({
   token: z.string(),
 });
 
-module.exports = { uploadFileSchema, downloadFileSchema, signReadUrlSchema, readFileBySignedUrlSchema };
+
+const deleteFileSchema = z.object({
+  encodedFileDest: z.string(),
+});
+
+module.exports = { uploadFileSchema, downloadFileSchema, signReadUrlSchema, readFileBySignedUrlSchema, deleteFileSchema };
