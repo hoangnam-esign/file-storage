@@ -8,7 +8,7 @@ const { appEnv } = require("../../config/env");
 const { MB } = require("../../constant");
 const { handlerWrapper } = require("../../common/utils");
 const { uploadFileSchema, downloadFileSchema, signReadUrlSchema, readFileBySignedUrlSchema, deleteFileSchema } = require("./schema");
-const { InputDataInvalid } = require("../../qa/errors");
+const { InputDataInvalid, FileNotFound } = require("../../qa/errors");
 const { authen, author } = require("../../access-control/protect-middleware");
 const { Roles } = require("../../access-control/role");
 
@@ -53,7 +53,8 @@ router.get(
     const fileDest = decodeURIComponent(encodedFileDest);
     const filePath = path.join(appEnv.BASE_FOLDER_PATH, fileDest);
     if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ message: "File không tồn tại!" });
+      // return res.status(404).json({ message: "File không tồn tại!" });
+      throw new FileNotFound({ details: { filePath } });
     }
     return res.download(filePath);
   })
@@ -67,7 +68,8 @@ router.post(
     const { fileDest, expireIn } = signReadUrlSchema.parse(req.body);
     const filePath = path.join(appEnv.BASE_FOLDER_PATH, fileDest);
     if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ message: "File không tồn tại!" });
+      // return res.status(404).json({ message: "File không tồn tại!" });
+      throw new FileNotFound({ details: { filePath } });
     }
     const duration = expireIn ?? appEnv.SIGNED_URL_EXPIRE_IN;
     const tokenContent = { fileDest };
@@ -85,7 +87,8 @@ router.get(
     const { fileDest } = decoded;
     const filePath = path.join(appEnv.BASE_FOLDER_PATH, fileDest);
     if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ message: "File không tồn tại!" });
+      // return res.status(404).json({ message: "File không tồn tại!" });
+      throw new FileNotFound({ details: { filePath } });
     }
     return res.download(filePath);
   })
@@ -100,7 +103,8 @@ router.delete(
     const fileDest = decodeURIComponent(encodedFileDest);
     const filePath = path.join(appEnv.BASE_FOLDER_PATH, fileDest);
     if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ message: "File không tồn tại!" });
+      // return res.status(404).json({ message: "File không tồn tại!" });
+      throw new FileNotFound({ details: { filePath } });
     }
     fs.rmSync(filePath);
     return res.sendStatus(204);

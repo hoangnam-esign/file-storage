@@ -4,7 +4,8 @@ const { appEnv } = require("../config/env");
 const { DISCORD_NOTIFY_URL } = appEnv;
 
 const notifyingConfig = {
-  discord: { url: DISCORD_NOTIFY_URL },
+  discord: { url: DISCORD_NOTIFY_URL, enable: true },
+
 };
 const notifier = getNotifier(notifyingConfig);
 

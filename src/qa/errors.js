@@ -22,6 +22,14 @@ class ResourceNotFound extends BaseError {
   }
 }
 
+class FileNotFound extends BaseError {
+  constructor({ message = "File không tồn tại!", details = {} }) {
+    super(message, details, 404);
+    this.name = "FileNotFound";
+  }
+}
+
+
 class BadRequest extends BaseError {
   constructor({ message = "Bad request!", details = {} }) {
     super(message, details, 400);
@@ -43,4 +51,4 @@ class NotAllowed extends BaseError {
   }
 }
 
-module.exports = { InputDataInvalid, QueryParamsInvalid, ResourceNotFound, BadRequest, CodeLogicError, NotAllowed };
+module.exports = { InputDataInvalid, QueryParamsInvalid, ResourceNotFound, BadRequest, CodeLogicError, NotAllowed, FileNotFound };
