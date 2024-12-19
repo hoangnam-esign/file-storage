@@ -21,13 +21,13 @@ router.post(
   upload.single("file"),
   handlerWrapper(async (req, res) => {
     const { folder } = uploadFileSchema.parse(req.body);
-    // check if file is present
+
     const fileBuffer = req.file?.buffer;
     if (!fileBuffer) throw new InputDataInvalid({ message: "file là bắt buộc!" });
 
     const fileName = req.file.originalname;
     // TODO: fix postman filename problem...
-    console.log("🚧 --> handlerWrapper --> fileName:", req.file);
+    // console.log("🚧 --> handlerWrapper --> fileName:", req.file);
     // check if file existed --> error
     const filePath = path.join(appEnv.BASE_FOLDER_PATH, folder, fileName);
     if (fs.existsSync(filePath)) {
@@ -53,7 +53,6 @@ router.get(
     const fileDest = decodeURIComponent(encodedFileDest);
     const filePath = path.join(appEnv.BASE_FOLDER_PATH, fileDest);
     if (!fs.existsSync(filePath)) {
-      // return res.status(404).json({ message: "File không tồn tại!" });
       throw new FileNotFound({ details: { filePath } });
     }
     return res.download(filePath);
@@ -68,7 +67,6 @@ router.post(
     const { fileDest, expireIn } = signReadUrlSchema.parse(req.body);
     const filePath = path.join(appEnv.BASE_FOLDER_PATH, fileDest);
     if (!fs.existsSync(filePath)) {
-      // return res.status(404).json({ message: "File không tồn tại!" });
       throw new FileNotFound({ details: { filePath } });
     }
     const duration = expireIn ?? appEnv.SIGNED_URL_EXPIRE_IN;
@@ -85,12 +83,14 @@ router.get(
     const { token } = readFileBySignedUrlSchema.parse(req.query);
     const decoded = jwt.verify(token, appEnv.JWT_SECRET);
     const { fileDest } = decoded;
-    const filePath = path.join(appEnv.BASE_FOLDER_PATH, fileDest);
+    const filePath = path.resolve(appEnv.BASE_FOLDER_PATH, fileDest);
     if (!fs.existsSync(filePath)) {
-      // return res.status(404).json({ message: "File không tồn tại!" });
       throw new FileNotFound({ details: { filePath } });
     }
-    return res.download(filePath);
+    console.log("🚧 --> handlerWrapper --> filePath:", filePath);
+    const fileName = path.basename(filePath);
+    res.setHeader("Content-Disposition", `inline; filename="${encodeURIComponent(fileName)}"; filename*=UTF-8''${encodeURIComponent(fileName)}`);
+    return res.sendFile(filePath);
   })
 );
 
@@ -103,13 +103,11 @@ router.delete(
     const fileDest = decodeURIComponent(encodedFileDest);
     const filePath = path.join(appEnv.BASE_FOLDER_PATH, fileDest);
     if (!fs.existsSync(filePath)) {
-      // return res.status(404).json({ message: "File không tồn tại!" });
       throw new FileNotFound({ details: { filePath } });
     }
     fs.rmSync(filePath);
     return res.sendStatus(204);
   })
 );
-
 
 module.exports = router;
