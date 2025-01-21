@@ -2,6 +2,7 @@ const { z } = require("zod");
 const { RoleEnum } = require("../../access-control/role");
 
 const createPrincipalSchema = z.object({
+  secret: z.string(),
   principalName: z.string(),
   roles: RoleEnum.array().min(1),
 });
