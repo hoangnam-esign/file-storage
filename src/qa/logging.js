@@ -7,7 +7,7 @@ const logConfig = {
   sensitiveRoutes: [],
   TZ: appEnv.TIME_ZONE,
   loggerOptions: {
-    consoleConfig: { mode: process.env.NODE_ENV === "production" ? "prod" : "dev" },
+    consoleConfig: { mode: appEnv.ENV },
     mongoConfig: { connectionString: appEnv.LOG_DB_CONNECTION_STRING },
   },
 };
