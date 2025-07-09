@@ -5,8 +5,11 @@ const logConfig = {
   extractCallerFunc: (req) => req.caller,
   ignoreRoutes: [{ method: "GET", route: "/health-check" }],
   sensitiveRoutes: [],
-  mongoConfig: { connectionString: appEnv.LOG_DB_CONNECTION_STRING, collectionName: "request_logs" },
   TZ: appEnv.TIME_ZONE,
+  loggerOptions: {
+    consoleConfig: { mode: process.env.NODE_ENV === "production" ? "prod" : "dev" },
+    mongoConfig: { connectionString: appEnv.LOG_DB_CONNECTION_STRING },
+  },
 };
 
 module.exports = { logConfig };

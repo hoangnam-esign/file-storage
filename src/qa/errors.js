@@ -1,5 +1,6 @@
 const { BaseError } = require("@hoangnam.io/qa-tools");
 // TODO: don't directly use error handler from qa-tools lib, because it's hard to customize error handling
+// TODO: just write your on error handler based on the template provided by the lib
 
 class InputDataInvalid extends BaseError {
   constructor({ message = "Dữ liệu đầu vào không hợp lệ", details = {} }) {
@@ -28,7 +29,6 @@ class FileNotFound extends BaseError {
     this.name = "FileNotFound";
   }
 }
-
 
 class BadRequest extends BaseError {
   constructor({ message = "Bad request!", details = {} }) {
