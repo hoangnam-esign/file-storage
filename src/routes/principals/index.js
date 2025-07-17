@@ -3,39 +3,20 @@ const { handlerWrapper } = require("../../common/utils");
 const { createPrincipalSchema, genNewAccessTokenSchema } = require("./schema");
 const { appEnv } = require("../../config/env");
 const { connection, Collections } = require("../../db");
-const { v4 } = require("uuid");
 const jwt = require("jsonwebtoken");
 const { authen, author } = require("../../access-control/protect-middleware");
+const { createNewPrincipal } = require("./utils");
 const router = express.Router();
 
 router.post(
   "/principals",
-  // authen,
-  // author([]),
   handlerWrapper(async (req, res) => {
     const { secret, principalName, roles } = createPrincipalSchema.parse(req.body);
     if (secret !== appEnv.JWT_SECRET) {
       return res.status(401).json({ message: "secret is not correct!" });
     }
-    const principalId = v4();
-    const newPrincipal = {
-      principalId,
-      principalName,
-      roles,
-    };
-    const coll = (await connection).db().collection(Collections.Principals);
-    await coll.insertOne(newPrincipal);
-
-    const accessTokenContent = newPrincipal;
-    const accessToken = jwt.sign(accessTokenContent, appEnv.JWT_SECRET, { expiresIn: appEnv.ACCESS_TOKEN_EXPIRE_TIME });
-    const refreshTokenContent = { principalId };
-    const refreshToken = jwt.sign(refreshTokenContent, appEnv.JWT_SECRET);
-
-    return res.json({
-      principalId,
-      accessToken,
-      refreshToken,
-    });
+    const result = await createNewPrincipal({ principalName, roles });
+    return res.json(result);
   })
 );
 
