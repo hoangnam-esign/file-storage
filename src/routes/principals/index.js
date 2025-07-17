@@ -10,10 +10,13 @@ const router = express.Router();
 
 router.post(
   "/principals",
-  authen,
-  author([]),
+  // authen,
+  // author([]),
   handlerWrapper(async (req, res) => {
-    const { principalName, roles } = createPrincipalSchema.parse(req.body);
+    const { secret, principalName, roles } = createPrincipalSchema.parse(req.body);
+    if (secret !== appEnv.JWT_SECRET) {
+      return res.status(401).json({ message: "secret is not correct!" });
+    }
     const principalId = v4();
     const newPrincipal = {
       principalId,

@@ -1,0 +1,12 @@
+services:
+  # ============================= file server  =============================
+  file-server:
+    image: local/file-server:v1.0.2
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./file-server-storage:/app/storage
+    # network_mode: "host"

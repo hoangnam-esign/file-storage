@@ -1,0 +1,6 @@
+JWT_SECRET=237a3b5c563a38ae109937f209df9d10
+PORT=8002
+FILE_SERVER_ENDPOINT=http://localhost:8002/api
+MONGODB_CONNECT_STRING=mongodb://admin:admin-password@host.docker.internal:27017/FileServer?authSource=admin&readPreference=primary&ssl=false&directConnection=true
+DISCORD_NOTIFY_URL=https://discord.com/api/webhooks/1317348824330534963/hBKSbH9303gTL8NNhC67aVgFJiJfGgAJRNIiGswasdfasdfadsfads
+APP_NAME=FileServerLocal
