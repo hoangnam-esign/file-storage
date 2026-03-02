@@ -30,5 +30,6 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: hoangnamstudy/esign-file-storage:${{ github.ref_name }}
+          platforms: linux/amd64,linux/arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max
