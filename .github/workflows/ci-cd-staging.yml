@@ -1,4 +1,4 @@
-name: Build, Push, SSH, Pull, ReUp
+name: CICD Staging
 
 on:
   push:
@@ -19,7 +19,7 @@ jobs:
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
-          username: bsignbkc
+          username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push
         uses: docker/build-push-action@v3
@@ -27,18 +27,18 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: bsignbkc/bsign-file-storage:staging
-  
-  pull-and-reup:
-    name: Pull new image and re run with the new version
-    runs-on: ubuntu-latest
-    needs: build-and-push
-    steps:
-      - uses: appleboy/ssh-action@master
-        with:
-          host: ${{ vars.STAGING_SERVER }}
-          username: ${{ vars.USERNAME }}
-          key: ${{ secrets.PRIVATE_KEY }}
-          script: |
-            cd ${{ vars.STAGING_PATH }}
-            docker-compose pull && docker-compose down && docker-compose up -d
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/esign-file-storage:staging
+
+  # pull-and-reup:
+  #   name: Pull new image and re run with the new version
+  #   runs-on: ubuntu-latest
+  #   needs: build-and-push
+  #   steps:
+  #     - uses: appleboy/ssh-action@master
+  #       with:
+  #         host: ${{ vars.STAGING_SERVER }}
+  #         username: ${{ vars.USERNAME }}
+  #         key: ${{ secrets.PRIVATE_KEY }}
+  #         script: |
+  #           cd ${{ vars.STAGING_PATH }}
+  #           docker-compose pull && docker-compose down && docker-compose up -d
