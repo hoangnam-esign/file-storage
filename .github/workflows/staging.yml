@@ -27,7 +27,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ vars.DOCKERHUB_USERNAME }}/esign-file-storage:staging
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/${{ vars.DOCKERHUB_REPONAME }}:${{ github.ref_name }}
 
   # pull-and-reup:
   #   name: Pull new image and re run with the new version
