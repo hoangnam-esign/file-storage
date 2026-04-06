@@ -8,7 +8,7 @@ router.get(
   handlerWrapper(async (req, res) => {
     const coll = (await connection).db().collection(Collections.Principals);
     await coll.findOne({});
-    return res.sendStatus(200);
+    return res.status(200).json({ message: "I'm alive.", version: "1.0.3+3" });
   })
 );
 
