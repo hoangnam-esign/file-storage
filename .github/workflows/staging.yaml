@@ -32,7 +32,7 @@ jobs:
     secrets: inherit
     with:
       language: nodejs
-      node-version: "20"
+      node-version: "24"
 
   build-scan-push:
     name: Build, Scan and Push
