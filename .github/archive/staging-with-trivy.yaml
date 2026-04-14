@@ -42,7 +42,7 @@ jobs:
           load: true
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@v0.33.1
+        uses: aquasecurity/trivy-action@v0.35.0
         continue-on-error: true # ← This allows upload even if HIGH/CRITICAL found
         with:
           scan-type: "image"
