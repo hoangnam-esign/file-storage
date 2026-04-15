@@ -1,12 +1,14 @@
-name: CICD Staging
+name: CICD Prod
 
 on:
   push:
     branches:
-      - staging
+      - main
+      - prod
   pull_request:
     branches:
-      - staging
+      - main
+      - prod
 
 permissions:
   contents: read
@@ -37,14 +39,26 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
 
+      - name: SonarQube Quality Gate Check
+        uses: SonarSource/sonarqube-quality-gate-action@v1
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
   build-scan-push:
     name: Build, Scan and Push
     runs-on: ubuntu-latest
     needs: [gitleaks, sonarqube, test-integration]
+    outputs:
+      short_sha: ${{ steps.sha.outputs.short }}
 
     steps:
       - name: Checkout files
         uses: actions/checkout@v4
+
+      - name: Get short SHA
+        id: sha
+        run: echo "short=$(echo '${{ github.sha }}' | cut -c1-7)" >> $GITHUB_OUTPUT
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -64,18 +78,20 @@ jobs:
           context: .
           file: ./Dockerfile
           push: false
-          tags: ${{ vars.DOCKERHUB_USERNAME }}/${{ vars.DOCKERHUB_REPONAME }}:${{ github.ref_name }}
+          tags: |
+            ${{ vars.DOCKERHUB_USERNAME }}/${{ vars.DOCKERHUB_REPONAME }}:${{ github.ref_name }}
+            ${{ vars.DOCKERHUB_USERNAME }}/${{ vars.DOCKERHUB_REPONAME }}:${{ github.ref_name }}-${{ steps.sha.outputs.short }}
           load: true
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@v0.35.0
-        continue-on-error: true
         with:
           scan-type: 'image'
           image-ref: '${{ vars.DOCKERHUB_USERNAME }}/${{ vars.DOCKERHUB_REPONAME }}:${{ github.ref_name }}'
           format: 'table'
           output: 'trivy-results.txt'
-          severity: 'HIGH,CRITICAL'
+          severity: 'CRITICAL'
+          exit-code: '1'
           ignore-unfixed: true
           vuln-type: 'os,library'
 
@@ -93,10 +109,12 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ vars.DOCKERHUB_USERNAME }}/${{ vars.DOCKERHUB_REPONAME }}:${{ github.ref_name }}
+          tags: |
+            ${{ vars.DOCKERHUB_USERNAME }}/${{ vars.DOCKERHUB_REPONAME }}:${{ github.ref_name }}
+            ${{ vars.DOCKERHUB_USERNAME }}/${{ vars.DOCKERHUB_REPONAME }}:${{ github.ref_name }}-${{ steps.sha.outputs.short }}
 
   deploy:
-    name: Deploy to Staging
+    name: Deploy to Prod
     runs-on: ubuntu-latest
     needs: [build-scan-push]
     if: github.event_name == 'push'
@@ -105,22 +123,24 @@ jobs:
       - name: SSH rollout
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ vars.DEPLOY_HOST }}
+          host: ${{ vars.PROD_DEPLOY_HOST }}
           username: deploy
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          script: rollout ${{ vars.DOCKERHUB_USERNAME }} ${{ secrets.DOCKERHUB_TOKEN }} ${{ vars.SERVICE_NAME }} ${{ vars.ENV_KEY }} ${{ github.ref_name }}
+          key: ${{ secrets.PROD_DEPLOY_SSH_KEY }}
+          script: rollout ${{ vars.DOCKERHUB_USERNAME }} ${{ secrets.DOCKERHUB_TOKEN }} ${{ vars.SERVICE_NAME }} ${{ vars.ENV_KEY }} ${{ github.ref_name }}-${{ needs.build-scan-push.outputs.short_sha }}
 
   verify:
-    name: Health Check
+    name: Health Check & Rollback
     runs-on: ubuntu-latest
     needs: [deploy]
 
     steps:
       - name: Health check
+        id: health
+        continue-on-error: true
         run: |
           for i in $(seq 1 6); do
             echo "Attempt $i/6..."
-            STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 5 --connect-timeout 3 "${{ vars.HEALTH_CHECK_URL }}")
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 5 --connect-timeout 3 "${{ vars.PROD_HEALTH_CHECK_URL }}")
             echo "HTTP $STATUS"
             if [ "$STATUS" = "200" ]; then
               echo "Health check PASSED on attempt $i"
@@ -131,3 +151,16 @@ jobs:
           done
           echo "Health check FAILED after 6 attempts"
           exit 1
+
+      - name: SSH rollback
+        if: steps.health.outcome == 'failure'
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ vars.PROD_DEPLOY_HOST }}
+          username: deploy
+          key: ${{ secrets.PROD_DEPLOY_SSH_KEY }}
+          script: rollback ${{ vars.DOCKERHUB_USERNAME }} ${{ secrets.DOCKERHUB_TOKEN }} ${{ vars.SERVICE_NAME }} ${{ vars.ENV_KEY }}
+
+      - name: Fail pipeline after rollback
+        if: steps.health.outcome == 'failure'
+        run: exit 1
