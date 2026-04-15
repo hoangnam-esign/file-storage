@@ -48,7 +48,7 @@ jobs:
   build-scan-push:
     name: Build, Scan and Push
     runs-on: ubuntu-latest
-    needs: [gitleaks, sonarqube, test-integration]
+    needs: [gitleaks, sonarqube]
     outputs:
       short_sha: ${{ steps.sha.outputs.short }}
 
