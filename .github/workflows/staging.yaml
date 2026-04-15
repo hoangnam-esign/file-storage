@@ -12,6 +12,7 @@ permissions:
   contents: read
   security-events: write
   actions: read
+  pull-requests: write # needed for gitleaks to annotate PRs
 
 jobs:
   gitleaks:
@@ -40,6 +41,7 @@ jobs:
   build-scan-push:
     name: Build, Scan and Push
     runs-on: ubuntu-latest
+    if: github.event_name == 'push'
     needs: [gitleaks, sonarqube]
 
     steps:
