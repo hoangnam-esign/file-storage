@@ -15,7 +15,7 @@ const appEnvSchema = z.object({
   MONGODB_CONNECT_STRING: z.string(),
   JWT_SECRET: z.string(),
   FILE_SERVER_ENDPOINT: z.string(),
-  ENV: z.enum(["prod", "dev"]).default("dev"),
+  ENV: z.enum(["prod", "dev"]).default("prod"),
 });
 
 const appEnv = appEnvSchema.parse(process.env);
