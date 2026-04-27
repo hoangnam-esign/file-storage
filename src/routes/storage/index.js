@@ -41,7 +41,7 @@ router.post(
 
     const fileDest = path.join(folder, fileName);
     return res.send({ fileDest });
-  })
+  }),
 );
 
 router.get(
@@ -56,7 +56,7 @@ router.get(
       throw new FileNotFound({ details: { filePath } });
     }
     return res.download(filePath);
-  })
+  }),
 );
 
 router.post(
@@ -74,7 +74,7 @@ router.post(
     const token = jwt.sign(tokenContent, appEnv.JWT_SECRET, { expiresIn: duration });
     const signedUrl = `${appEnv.FILE_SERVER_ENDPOINT}/read?token=${token}`;
     return res.json({ signedUrl });
-  })
+  }),
 );
 
 router.get(
@@ -87,11 +87,11 @@ router.get(
     if (!fs.existsSync(filePath)) {
       throw new FileNotFound({ details: { filePath } });
     }
-    console.log("🚧 --> handlerWrapper --> filePath:", filePath);
+    // console.log("🚧 --> handlerWrapper --> filePath:", filePath);
     const fileName = path.basename(filePath);
     res.setHeader("Content-Disposition", `inline; filename="${encodeURIComponent(fileName)}"; filename*=UTF-8''${encodeURIComponent(fileName)}`);
     return res.sendFile(filePath);
-  })
+  }),
 );
 
 router.delete(
@@ -107,7 +107,7 @@ router.delete(
     }
     fs.rmSync(filePath);
     return res.sendStatus(204);
-  })
+  }),
 );
 
 module.exports = router;
